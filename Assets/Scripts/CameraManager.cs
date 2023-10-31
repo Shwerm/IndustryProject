@@ -13,6 +13,7 @@ public class CameraManager : MonoBehaviour
         {
             nextCam.Priority = 2;
             Previous.Priority = 1;
+            Debug.Log("Hello");
         }
     }
 }
