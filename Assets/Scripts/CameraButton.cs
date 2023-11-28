@@ -9,6 +9,8 @@ public class CameraButton : MonoBehaviour
     public GameObject MainCanvas;
     public GameObject ViewFinderCanvas;
     public bool CameraTaskActive = false;
+
+    public GameObject TaskList;
     // Start is called before the first frame update
     void Start()
     {
@@ -45,5 +47,15 @@ public class CameraButton : MonoBehaviour
         MainCanvas.SetActive(true);
 
         CameraTaskActive = false;
+    }
+
+    public void CloseTaskList()
+    {
+        TaskList.SetActive(false);
+    }
+
+    public void OpenTaskList()
+    {
+        TaskList.SetActive(true);
     }
 }

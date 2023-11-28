@@ -23,6 +23,7 @@ public class CameraFlash : MonoBehaviour
     public GameObject playerSource;
 
     private CameraButton cameraButton; // Reference to the CameraButton script
+    private PlayerManager playerManager; //" " "
 
     // Start is called before the first frame update
     void Start()
@@ -34,12 +35,13 @@ public class CameraFlash : MonoBehaviour
         image.color = alphaValue;
 
         cameraButton = FindObjectOfType<CameraButton>();
+        playerManager = FindObjectOfType<PlayerManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E) && !flashOn && cameraButton != null && cameraButton.CameraTaskActive)
+        if (Input.GetKeyDown(KeyCode.E) && !flashOn && cameraButton != null && cameraButton.CameraTaskActive && playerManager!= null && playerManager.LookingAtObject1 == true)
         {
             // Set Image of White Screens Alpha to 1
             var alphaValue = image.color;

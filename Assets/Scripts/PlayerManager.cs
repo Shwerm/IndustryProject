@@ -5,62 +5,90 @@ using UnityEngine;
 public class PlayerManager : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 5f;  // Speed of forward and backward movement.
-    [SerializeField] private float rotationSpeed = 100f;  // Speed of rotation left and right.
-    [SerializeField] private float jumpForce = 4f;  // Force applied when jumping.
-    [SerializeField] private bool isGrounded;  // Flag to check if the object is grounded.
+    [SerializeField] private float moveSpeed = 5f;  
+    [SerializeField] private float rotationSpeed = 100f;  
+    [SerializeField] private float jumpForce = 4f;  
+    [SerializeField] private bool isGrounded;
 
-    private Rigidbody rb;  // Reference to the Rigidbody component.
+    private Rigidbody rb;
+    public float interactionRange = 10000f; 
+    [SerializeField] private Camera playerPOVCamera;
 
+    private CameraButton cameraButton;
+
+    public bool LookingAtObject1 = false;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();  // Get the Rigidbody component on start.
+        rb = GetComponent<Rigidbody>();
+        cameraButton = FindObjectOfType<CameraButton>();
     }
 
+    void FindPlayerPOVCamera()
+    {
+        playerPOVCamera = GameObject.Find("PlayerPOVCamera")?.GetComponent<Camera>();
+
+        // Handle the case when the camera is still not found
+    }
 
     void OnCollisionEnter(Collision collision)
     {
-        // Check if the player collides with an object tagged as "Ground."
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
         }
     }
 
-
     void OnCollisionExit(Collision collision)
     {
-        // Check if the player is no longer colliding with an object tagged as "Ground."
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = false;
         }
     }
 
-
     void Update()
     {
-        // Movement input from the player.
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
-
-        // Calculate movement direction.
         Vector3 moveDirection = transform.forward * verticalInput * moveSpeed;
-
-        // Calculate rotation input and rotation direction.
         float rotationInput = horizontalInput * rotationSpeed;
 
-        // Apply movement and rotation to the Rigidbody.
         rb.MovePosition(rb.position + moveDirection * Time.deltaTime);
         rb.MoveRotation(rb.rotation * Quaternion.Euler(Vector3.up * rotationInput * Time.deltaTime));
 
-        // Jumping: apply vertical force if grounded and jump button is pressed.
-        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
+        if (isGrounded == true && Input.GetKeyDown(KeyCode.Space))
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isGrounded = false;  // Set to false to prevent double jumping.
+            isGrounded = false;
+        }
+
+        if (playerPOVCamera == null)
+        {
+            // If the camera is still null, try to find it again
+            FindPlayerPOVCamera();
+        }
+
+        if (playerPOVCamera != null && cameraButton != null && cameraButton.CameraTaskActive == true)
+        {
+            // Debug information for troubleshooting
+            Debug.DrawRay(playerPOVCamera.transform.position, playerPOVCamera.transform.forward, Color.red, 0.1f);
+
+            if (Physics.Raycast(playerPOVCamera.transform.position, playerPOVCamera.transform.forward, out RaycastHit hit))
+            {
+                GameObject hitObject = hit.collider.gameObject;
+
+                // Check if the object has the "Mirror" tag
+                if (hitObject.CompareTag("Mirror"))
+                {
+                    Debug.Log("Player is looking at a mirror!");
+                    LookingAtObject1 = true;
+                }
+                else
+                {
+                    LookingAtObject1 = false;
+                }
+            }
         }
     }
 }
-
